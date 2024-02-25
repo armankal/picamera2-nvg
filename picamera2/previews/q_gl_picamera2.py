@@ -175,7 +175,27 @@ class QGlPicamera2(QWidget):
 
             void main()
             {
+                vec2 uv = texcoord;
+                //Flip vertically for both left and right sides
+                //uv.y = 1.0 - uv.y;
+                if (uv.x < 0.5){
+                    gl_FragColor = texture2D(texture, vec2( uv.x+0.25, uv.y));
+                }else{
+                    gl_FragColor = texture2D(texture, vec2( uv.x-0.25, uv.y));
+                }
+                
+            }
+        """
+        fragShaderSrc_image2 = """
+            #extension GL_OES_EGL_image_external : enable
+            precision mediump float;
+            varying vec2 texcoord;
+            uniform samplerExternalOES texture;
+
+            void main()
+            {
                 gl_FragColor = texture2D(texture, texcoord);
+
             }
         """
         vertShaderSrc_overlay = """
@@ -388,7 +408,6 @@ class QGlPicamera2(QWidget):
             self.own_current = (completed_request.config['buffer_count'] > 1)
             if self.own_current:
                 self.current_request.acquire()
-
     @pyqtSlot()
     def handle_requests(self):
         if not self.running:
@@ -428,3 +447,4 @@ class QGlPicamera2(QWidget):
         # We seem to need a short delay before rendering the background colour works. No idea why.
         time.sleep(0.05)
         self.resizeEvent(None)
+        print
